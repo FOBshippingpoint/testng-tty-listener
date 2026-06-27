@@ -11,6 +11,14 @@
     <name>TestNG TTY Listener</name>
     <description>The escape hatch for Maven with redirectTestOutputToFile=true + TestNG.</description>
 
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/license/mit</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
