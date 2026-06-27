@@ -1,0 +1,13 @@
+= TestNG TTY Listener
+:toc:
+
+Maven + TestNG does not print test progress for each test set.
+It only prints after all test suites have finished.
+
+Normally, you can use TestNG's built-in https://testng.org/#_logging_listeners[`DotTestListener`]
+to print progress like `...S..FF` in the console.
+However, if you set
+https://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html#redirectTestOutputToFile[`redirectTestOutputToFile`] to true, you will never gonna see it in the Maven console.
+
+So, instead of writing to stdout/stderr and being caught by Maven, TestNG TTY Listener prints to the device TTY instead.
+It is kinda hack, but it works.
