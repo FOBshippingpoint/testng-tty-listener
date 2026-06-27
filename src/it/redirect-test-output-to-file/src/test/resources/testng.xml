@@ -1,0 +1,11 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="TtyRedirectSuite">
+    <listeners>
+        <listener class-name="io.github.fobshippingpoint.TtyTestListener"/>
+    </listeners>
+    <test name="Redirected output test">
+        <classes>
+            <class name="test.java.RedirectOutputTest"/>
+        </classes>
+    </test>
+</suite>
