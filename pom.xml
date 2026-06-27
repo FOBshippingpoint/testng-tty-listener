@@ -19,6 +19,10 @@
         <testng.version>7.12.0</testng.version>
     </properties>
 
+    <scm>
+        <developerConnection>scm:git:git@github.com:FOBshippingpoint/testng-tty-listener.git</developerConnection>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>org.testng</groupId>
