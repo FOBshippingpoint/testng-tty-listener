@@ -24,6 +24,10 @@ https://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html#redirectT
 So, instead of writing to stdout/stderr and being caught by Maven, TestNG TTY Listener prints to the device TTY instead.
 It is kinda a hack, but it works.
 
+== Screenshot
+
+image::https://github.com/user-attachments/assets/20d93b83-dfb8-41c0-9d27-0db01913f2cc[screenshot of TestNG TTY Listener output on terminal]
+
 == Quick Start
 
 IMPORTANT: This plugin only works for Linux and macOS. Since Windows does not provide `/dev/tty`, it will fall back to `System.out`.
