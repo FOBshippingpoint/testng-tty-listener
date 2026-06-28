@@ -1,13 +1,121 @@
 = TestNG TTY Listener
+ifdef::env-github[]
+:caution-caption: 🔥
+:important-caption: ❗
+:note-caption: 📎
+:tip-caption: 💡
+:warning-caption: ⚠️
+endif::[]
 :toc:
+:toc-placement!:
+:version: 1.0
+:source-highlighter: highlightjs
+
+toc::[]
 
 Maven + TestNG does not print test progress for each test set.
-It only prints after all test suites have finished.
+It only prints after all test suites have finished. TestNG TTY Listener is meant to solve this issue.
 
 Normally, you can use TestNG's built-in https://testng.org/#_logging_listeners[`DotTestListener`]
-to print progress like `...S..FF` in the console.
+to print progress like `+...S..FF+` (success, skip, failure) in the console.
 However, if you set
-https://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html#redirectTestOutputToFile[`redirectTestOutputToFile`] to true, you will never gonna see it in the Maven console.
+https://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html#redirectTestOutputToFile[`redirectTestOutputToFile`] to true, you will not see it in the Maven console.
 
 So, instead of writing to stdout/stderr and being caught by Maven, TestNG TTY Listener prints to the device TTY instead.
-It is kinda hack, but it works.
+It is kinda a hack, but it works.
+
+== Quick Start
+
+IMPORTANT: This plugin only works for Linux and macOS. Since Windows does not provide `/dev/tty`, it will fall back to `System.out`.
+
+[,xml,subs="attributes+"]
+----
+<dependencies>
+    <dependency>
+        <groupId>io.github.fobshippingpoint</groupId>
+        <artifactId>testng-tty-listener</artifactId>
+        <version>{version}</version>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>${maven-surefire-plugin.version}</version>
+            <configuration>
+                <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                <testFailureIgnore>true</testFailureIgnore>
+                <suiteXmlFiles>
+                    <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                </suiteXmlFiles>
+                <systemPropertyVariables>
+                    <!-- Default properties:
+                    <io.github.fobshippingpoint.TtyTestListener.newLineWidth>40</io.github.fobshippingpoint.TtyTestListener.newLineWidth>
+                    <io.github.fobshippingpoint.TtyTestListener.isColorEnabled>false</io.github.fobshippingpoint.TtyTestListener.isColorEnabled>
+                    <io.github.fobshippingpoint.TtyTestListener.prefix>[INFO]&#x00A0;</io.github.fobshippingpoint.TtyTestListener.prefix>
+                    -->
+                </systemPropertyVariables>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+----
+
+== System Properties
+
+[cols="2,1,1,3",options="header"]
+|===
+|Property |Type |Default |Description
+
+|`io.github.fobshippingpoint.TtyTestListener.newLineWidth`
+|Integer
+|`40`
+|Maximum test results per line.
+
+|`io.github.fobshippingpoint.TtyTestListener.isColorEnabled`
+|Boolean
+|`false`
+|Colorize `.`, `F`, and `S` output with ANSI colors.
+
+|`io.github.fobshippingpoint.TtyTestListener.prefix`
+|String
+|``[INFO] ``
+|Prefix for each output line. When color is enabled, the default is a blue ``[INFO] `` to mock Maven's style.
+|===
+
+== Continuous Integration
+
+In a local environment, such as your laptop, this usually works because you run the command in your terminal emulator.
+However, if you want to print progress on Jenkins or Docker, it won't work since they do not provide a TTY for the command.
+
+A workaround is to use a tool like https://man.archlinux.org/man/script.1.en[script]:
+
+[,bash]
+----
+script --return --quiet --command "mvn --batch-mode verify" /dev/null
+----
+
+== Development
+
+[,text]
+----
+<> Maven <>
+Run unit tests, integration tests, and spotless check:
+    mvn verify
+
+Run unit tests:
+    mvn --activate-profiles='!run-its' test
+
+Deploy artifact to Maven Central. Remember to remove `-SNAPSHOT` suffix in the version first:
+    MAVEN_GPG_PASSPHRASE="pass" mvn --activate-profiles=release -Dgpg.keyname="$MAVEN_GPG_KEYNAME" deploy
+
+<> Docker <>
+Run full build and get artifacts (target):
+    docker build --target=final --output type=output,dest=/tmp/target .
+
+Deploy to Maven Central:
+    docker build --target=release --secret id=MAVEN_GPG_KEYNAME --secret id=MAVEN_GPG_PASSPHRASE .
+----
