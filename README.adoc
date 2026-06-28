@@ -32,6 +32,9 @@ image::https://github.com/user-attachments/assets/20d93b83-dfb8-41c0-9d27-0db019
 
 IMPORTANT: This plugin only works for Linux and macOS. Since Windows does not provide `/dev/tty`, it will fall back to `System.out`.
 
+. Add testng-tty-listener as test dependency.
++
+.pom.xml
 [,xml,subs="attributes+"]
 ----
 <dependencies>
@@ -48,15 +51,14 @@ IMPORTANT: This plugin only works for Linux and macOS. Since Windows does not pr
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <version>${maven-surefire-plugin.version}</version>
+            <version>3.5.6</version>
             <configuration>
                 <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                <testFailureIgnore>true</testFailureIgnore>
                 <suiteXmlFiles>
                     <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                 </suiteXmlFiles>
                 <systemPropertyVariables>
-                    <!-- Default properties:
+                    <!-- Default properties, uncomment if needed:
                     <io.github.fobshippingpoint.TtyTestListener.newLineWidth>40</io.github.fobshippingpoint.TtyTestListener.newLineWidth>
                     <io.github.fobshippingpoint.TtyTestListener.isColorEnabled>false</io.github.fobshippingpoint.TtyTestListener.isColorEnabled>
                     <io.github.fobshippingpoint.TtyTestListener.prefix>[INFO]&#x00A0;</io.github.fobshippingpoint.TtyTestListener.prefix>
@@ -67,6 +69,18 @@ IMPORTANT: This plugin only works for Linux and macOS. Since Windows does not pr
     </plugins>
 </build>
 ----
+. Add listener to `testng.xml`.
++
+.testng.xml
+[,xml]
+----
+<suite>
+    <listeners>
+        <listener class-name="io.github.fobshippingpoint.TtyTestListener"/>
+    </listeners>
+</suite>
+----
+. Run `mvn test`, should see output similar to `+[INFO] ...S...F..+`.
 
 == System Properties
 
@@ -113,6 +127,9 @@ Run unit tests, integration tests, and spotless check:
 Run unit tests:
     mvn --activate-profiles='!run-its' test
 
+Format code:
+    mvn spotless:apply
+
 Deploy artifact to Maven Central. Remember to remove `-SNAPSHOT` suffix in the version first:
     MAVEN_GPG_PASSPHRASE="pass" mvn --activate-profiles=release -Dgpg.keyname="$MAVEN_GPG_KEYNAME" deploy
 
@@ -123,3 +140,4 @@ Run full build and get artifacts (target):
 Deploy to Maven Central:
     docker build --target=release --secret id=MAVEN_GPG_KEYNAME --secret id=MAVEN_GPG_PASSPHRASE .
 ----
+
